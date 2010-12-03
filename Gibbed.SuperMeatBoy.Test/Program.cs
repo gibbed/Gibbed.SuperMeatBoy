@@ -1,0 +1,18 @@
+﻿using System.IO;
+using Gibbed.SuperMeatBoy.FileFormats;
+
+namespace Gibbed.SuperMeatBoy.Test
+{
+    internal class Program
+    {
+        public static void Main(string[] args)
+        {
+            using (var input = File.Open(
+                @"charactermenu.am", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var test = new AnimationFile();
+                test.Deserialize(input);
+            }
+        }
+    }
+}
