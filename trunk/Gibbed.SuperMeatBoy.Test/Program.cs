@@ -8,9 +8,9 @@ namespace Gibbed.SuperMeatBoy.Test
         public static void Main(string[] args)
         {
             using (var input = File.Open(
-                @"charactermenu.am", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                @"savegame.dat", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                var test = new AnimationFile();
+                var test = new SaveFile();
                 test.Deserialize(input);
             }
         }
