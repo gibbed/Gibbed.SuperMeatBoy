@@ -9,7 +9,11 @@ namespace Gibbed.SuperMeatBoy.FileFormats
         public uint UnlockedCharacterFlags;
         public uint UnlockedChapterFlags;
         public uint TotalDeaths;
-        public uint Unknown4; // Something to do with the last played chapter?
+        /* Something to do with the last played chapter?
+         * It's value is 600, same as the number of level records,
+         * but it doesn't affect how many level records are read. */
+        public uint Unknown4;
+        
         public ChapterRecord[] Chapters = new ChapterRecord[10];
         public LevelRecord[] Levels = new LevelRecord[600];
 
