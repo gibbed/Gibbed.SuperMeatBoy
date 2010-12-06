@@ -7,11 +7,11 @@ namespace Gibbed.SuperMeatBoy.FileFormats
     public class SaveFile
     {
         public uint UnlockedCharacterFlags;
-        public uint Unknown2;
-        public uint Unknown3;
-        public uint Unknown4;
-        public UnknownRecord[] UnknownRecords = new UnknownRecord[10];
-        public LevelRecord[] LevelRecords = new LevelRecord[600];
+        public uint UnlockedChapterFlags;
+        public uint TotalDeaths;
+        public uint Unknown4; // Something to do with the last played chapter?
+        public ChapterRecord[] Chapters = new ChapterRecord[10];
+        public LevelRecord[] Levels = new LevelRecord[600];
 
         public void Serialize(Stream output)
         {
@@ -21,45 +21,63 @@ namespace Gibbed.SuperMeatBoy.FileFormats
         public void Deserialize(Stream input)
         {
             this.UnlockedCharacterFlags = input.ReadValueU32();
-            this.Unknown2 = input.ReadValueU32();
-            this.Unknown3 = input.ReadValueU32();
+            this.UnlockedChapterFlags = input.ReadValueU32();
+            this.TotalDeaths = input.ReadValueU32();
             this.Unknown4 = input.ReadValueU32();
 
-            for (int i = 0; i < this.UnknownRecords.Length; i++)
+            for (int i = 0; i < this.Chapters.Length; i++)
             {
-                this.UnknownRecords[i].Unknown0 = input.ReadValueU8();
-                this.UnknownRecords[i].Unknown1 = input.ReadValueU8();
-                this.UnknownRecords[i].Unknown2 = input.ReadValueU8();
-                this.UnknownRecords[i].Unknown3 = input.ReadValueU8();
-                this.UnknownRecords[i].Unknown4 = input.ReadValueU16();
-                this.UnknownRecords[i].Unknown6 = input.ReadValueU8();
-                this.UnknownRecords[i].Unknown7 = input.ReadValueU32();
+                this.Chapters[i].CompletedLevels = input.ReadValueU8();
+                this.Chapters[i].Unknown1 = input.ReadValueU8();
+                this.Chapters[i].ObtainedBandages = input.ReadValueU8();
+                this.Chapters[i].Unknown3 = input.ReadValueU8();
+                this.Chapters[i].Unknown4 = input.ReadValueU16();
+                this.Chapters[i].Unknown6 = input.ReadValueU8();
+                this.Chapters[i].Unknown7 = input.ReadValueU8();
+                this.Chapters[i].Unknown8 = input.ReadValueU32();
             }
 
-            for (int i = 0; i < this.LevelRecords.Length; i++)
+            for (int i = 0; i < this.Levels.Length; i++)
             {
-                this.LevelRecords[i].Time = input.ReadValueF32();
-                this.LevelRecords[i].Unknown4 = input.ReadValueU32();
-                this.LevelRecords[i].Unknown8 = input.ReadValueU32();
+                this.Levels[i].Time = input.ReadValueF32();
+
+                //this.LevelRecords[i].Flags = (LevelRecordFlags)input.ReadValueU32();
+                uint flags = input.ReadValueU32();
+                if ((flags & ~(1 | 2 | 8)) != 0)
+                {
+                    throw new InvalidOperationException("unknown level record flag");
+                }
+                this.Levels[i].Flags = (LevelRecordFlags)flags;
+
+                this.Levels[i].Unknown8 = input.ReadValueU32();
             }
         }
 
-        public struct UnknownRecord
+        public struct ChapterRecord
         {
-            public byte Unknown0;
+            public byte CompletedLevels;
             public byte Unknown1;
-            public byte Unknown2;
+            public byte ObtainedBandages;
             public byte Unknown3;
             public ushort Unknown4;
             public byte Unknown6;
-            public uint Unknown7;
+            public byte Unknown7;
+            public uint Unknown8;
         }
 
         public struct LevelRecord
         {
             public float Time;
-            public uint Unknown4;
+            public LevelRecordFlags Flags;
             public uint Unknown8;
+        }
+
+        [Flags]
+        public enum LevelRecordFlags : uint
+        {
+            ObtainedBandage = 1,
+            Completed = 2,
+            UnlockedWarp = 8,
         }
     }
 }
